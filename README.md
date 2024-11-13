@@ -76,7 +76,7 @@ This project is a basic UNIX-style command-line interpreter (shell) written in C
    simple_prompt$ sleep 30 &
 
 ```
-- **Basic Commands**: 
+- **Using Built-in Commands**: 
 ```bash
    simple_prompt$ cd /path/to/directory
    simple_prompt$ help
