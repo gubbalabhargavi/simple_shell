@@ -102,7 +102,7 @@ Feel free to open issues or submit pull requests if you’d like to improve the 
 
 ## Author
 
-- **Your Name** - *Shahil Sharma*
+*Shahil Sharma*
 
 ## Acknowledgments
 
