@@ -12,10 +12,13 @@
 char *read_line(void)
 {
     char *line = NULL;
-
+    char cwd[200];
+    char prompt[300];
     if (isatty(STDIN_FILENO))
     {
-        line = readline("simple_prompt$ ");
+        getcwd(cwd, sizeof(cwd));  // Get current working directory
+        snprintf(prompt, sizeof(prompt), "\033[1;32msimple-shell:\033[1;34m~%s\033[0m$ ", cwd); // Format the prompt string
+        line = readline(prompt);
 
         if (line && *line)
         {
