@@ -1,3 +1,5 @@
+/* shell.h */
+
 #ifndef SHELL_H
 #define SHELL_H
 
@@ -8,6 +10,8 @@
 #include <string.h>
 #include <sys/wait.h>
 #include <fcntl.h>
+#include <readline/readline.h>
+#include <readline/history.h>
 
 /*---DEFINITIONS---*/
 #define TOK_BUFSIZE 64
@@ -26,6 +30,10 @@ typedef struct command_t {
 /* parse_line.c */
 command_t *parse_line(char *line);
 char *get_token(char **str_ptr);
+char *command_generator(const char *, int);
+char **simple_prompt_completion(const char *, int, int);
+char **get_system_commands(void);
+void free_command_list(char **commands);
 
 /* main.c */
 void shell_interactive(void);
@@ -43,5 +51,6 @@ int own_cd(char **args);
 int own_env(char **args);
 int own_help(char **args);
 int own_exit(char **args);
+int own_echo(char **args);  // Added prototype for own_echo
 
 #endif

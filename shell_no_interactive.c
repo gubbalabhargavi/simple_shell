@@ -1,3 +1,5 @@
+/* shell_no_interactive.c */
+
 #include "shell.h"
 
 /**
@@ -10,7 +12,7 @@ void shell_no_interactive(void)
     int status = 1;
 
     do {
-        line = read_stream();
+        line = read_line();
 
         if (!line)
         {

@@ -1,3 +1,5 @@
+/* execute_command.c */
+
 #include "shell.h"
 
 /**
@@ -24,26 +26,88 @@ int execute_command(command_t *cmd)
             current_cmd = current_cmd->next;
             continue;
         }
-        else if (strcmp(current_cmd->args[0], "cd") == 0)
+        else if (strcmp(current_cmd->args[0], "cd") == 0 ||
+                 strcmp(current_cmd->args[0], "exit") == 0 ||
+                 strcmp(current_cmd->args[0], "help") == 0 ||
+                 strcmp(current_cmd->args[0], "env") == 0 ||
+                 strcmp(current_cmd->args[0], "echo") == 0)
         {
-            own_cd(current_cmd->args);
-            current_cmd = current_cmd->next;
-            continue;
-        }
-        else if (strcmp(current_cmd->args[0], "exit") == 0)
-        {
-            own_exit(current_cmd->args);
-            return 0;  // Exit the shell
-        }
-        else if (strcmp(current_cmd->args[0], "help") == 0)
-        {
-            own_help(current_cmd->args);
-            current_cmd = current_cmd->next;
-            continue;
-        }
-        else if (strcmp(current_cmd->args[0], "env") == 0)
-        {
-            own_env(current_cmd->args);
+            // Save original file descriptors
+            int saved_stdin = dup(STDIN_FILENO);
+            int saved_stdout = dup(STDOUT_FILENO);
+
+            // Input redirection
+            if (current_cmd->input_redirect)
+            {
+                int fd0 = open(current_cmd->input_redirect, O_RDONLY);
+                if (fd0 < 0)
+                {
+                    perror("Input redirection");
+                    // Restore original file descriptors
+                    dup2(saved_stdin, STDIN_FILENO);
+                    dup2(saved_stdout, STDOUT_FILENO);
+                    close(saved_stdin);
+                    close(saved_stdout);
+                    current_cmd = current_cmd->next;
+                    continue;
+                }
+                dup2(fd0, STDIN_FILENO);
+                close(fd0);
+            }
+
+            // Output redirection
+            if (current_cmd->output_redirect)
+            {
+                int fd1 = open(current_cmd->output_redirect, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+                if (fd1 < 0)
+                {
+                    perror("Output redirection");
+                    // Restore original file descriptors
+                    dup2(saved_stdin, STDIN_FILENO);
+                    dup2(saved_stdout, STDOUT_FILENO);
+                    close(saved_stdin);
+                    close(saved_stdout);
+                    current_cmd = current_cmd->next;
+                    continue;
+                }
+                dup2(fd1, STDOUT_FILENO);
+                close(fd1);
+            }
+
+            // Execute the built-in command
+            if (strcmp(current_cmd->args[0], "cd") == 0)
+            {
+                own_cd(current_cmd->args);
+            }
+            else if (strcmp(current_cmd->args[0], "exit") == 0)
+            {
+                own_exit(current_cmd->args);
+                // Restore original file descriptors before exiting
+                dup2(saved_stdin, STDIN_FILENO);
+                dup2(saved_stdout, STDOUT_FILENO);
+                close(saved_stdin);
+                close(saved_stdout);
+                return 0;  // Exit the shell
+            }
+            else if (strcmp(current_cmd->args[0], "help") == 0)
+            {
+                own_help(current_cmd->args);
+            }
+            else if (strcmp(current_cmd->args[0], "env") == 0)
+            {
+                own_env(current_cmd->args);
+            }
+            else if (strcmp(current_cmd->args[0], "echo") == 0)
+            {
+                own_echo(current_cmd->args);
+            }
+
+            // Restore original file descriptors
+            dup2(saved_stdin, STDIN_FILENO);
+            dup2(saved_stdout, STDOUT_FILENO);
+            close(saved_stdin);
+            close(saved_stdout);
+
             current_cmd = current_cmd->next;
             continue;
         }

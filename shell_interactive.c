@@ -10,7 +10,7 @@ void shell_interactive(void)
     int status = 1;
 
     do {
-        printf("simple_prompt$ ");
+        // printf("simple_prompt$ ");
         line = read_line();
 
         if (!line)
