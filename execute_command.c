@@ -202,3 +202,10 @@ int execute_command(command_t *cmd)
 
     return status;
 }
+
+// void cleanup_command_execution(int *fd, pid_t pid, int *status)
+// {
+//     if (fd[0] != -1) close(fd[0]);
+//     if (fd[1] != -1) close(fd[1]);
+//     if (pid > 0) waitpid(pid, status, 0);
+// }
